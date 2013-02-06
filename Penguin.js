@@ -20,7 +20,7 @@ Penguin.presetTypes = {};
  *
  * @type {string}
  */
-Penguin.partialsPath = '';
+Penguin.segmentsPath = '';
 
 /**
  *
@@ -62,7 +62,7 @@ Penguin.getMarkup = function(template, config, completeFunc){
 
        var start = Date.now();
 
-        $.ajax(Penguin.partialsPath + '/' +template, {
+        $.ajax(Penguin.segmentsPath + '/' +template, {
             success:function(data){
 
                 var processedPartial = Penguin.renderTemplate(data, config);
