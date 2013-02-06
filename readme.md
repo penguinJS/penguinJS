@@ -1,0 +1,6 @@
+PenguinJS
+==========
+
+Dependencies
+--------------
+jQuery
