@@ -1,99 +1,123 @@
 // Waddle by PenguinJS
 // Compile Segments to preload
 
+var waddle = null;
 
-var fs = require('fs');
-var path = require('path');
+if(typeof domain !== 'undefined'){
 
-/** @type {String} path for folder containing segments */
-var targetFolder = process.argv[process.argv.length - 1] || '.';
+	waddle = domain.create();
+	waddle.run();
 
-/** @type {String} path for filename to write to */
-var output = '';
+}else{
 
-/** @type {Boolean} flag to determine whether to wrap the output as amd */
-var amdFormat = false;
+	application();
 
-process.argv.forEach(function(val, index, array){
+}
 
-	switch(val){
+function application(){
 
-		case '-o':
 
-			if(typeof array[index+1] !== 'undefined'){
+	var fs = require('fs');
+	var path = require('path');
 
-				output = array[index+1];
-			}else{
+	/** @type {String} path for folder containing segments */
+	var targetFolder = process.argv[process.argv.length - 1] || '.';
 
-				throw Error('No output file defined');
-			}
-			break;
+	/** @type {String} path for filename to write to */
+	var output = '';
 
-		case '-amd':
+	/** @type {Boolean} flag to determine whether to wrap the output as amd */
+	var amdFormat = false;
 
-			amdFormat = true;
+	if(waddle){
 
-			break;
+		waddle.on('error', function(err){
+			console.error('Error', err);
+		});
+	}else{
+		process.on('uncaughtException', function(err){
+			console.error(err);
+		});
 	}
 
-});
+	process.argv.forEach(function(val, index, array){
 
+		switch(val){
 
-fs.readdir(targetFolder, function(err, files){
+			case '-o':
 
-	var outputString = '';
-	
-	files.forEach(function(val, index, array){
+				if(typeof array[index+1] !== 'undefined'){
 
-		var target = path.join(targetFolder, val);
+					output = array[index+1];
+				}else{
 
-		var stat = fs.statSync(target);
+					throw Error('No output file defined');
+				}
+				break;
 
-		if(stat.isFile()){
+			case '-amd':
 
-			var fileContent = fs.readFileSync(target, 'utf8');
-			
-			fileContent = fileContent.trim();
+				amdFormat = true;
 
-			// remove unnecessary whitespace
-			fileContent = fileContent.replace(/\s\s+/gm, ' ');
-			fileContent = fileContent.replace(/[\r\n]/gm, '');
-
-			/*
-			 * escape quotes and <>
-			 * " = \u0022
-			 * ' = \u0027
-			 * < = \u003C
-			 * > = \u003E
-			 */
-
-			fileContent = fileContent.replace(/"/gm, '\\u0022');
-			fileContent = fileContent.replace(/'/gm, '\\u0027');
-			fileContent = fileContent.replace(/</gm, '\\u003C');
-			fileContent = fileContent.replace(/>/gim, '\\u003E');
-
-
-
-			// wrap in outputJS
-
-			/*
-
-				Penguin.cache['val'] = 'fileContent';
-
-			*/
-
-			outputString += 'Penguin.cache[\''+val+'\'] = \''+fileContent+'\';';
-
+				break;
 		}
-
 
 	});
 
-	if(amdFormat){
 
-		// wrap all in define([])
-		outputString = 'define([\'penguin\'], function(Penguin){' + outputString + '});';
-	}
+	fs.readdir(targetFolder, function(err, files){
 
-	fs.writeFile(output, outputString);
-});
+		var outputString = '';
+		
+		files.forEach(function(val, index, array){
+
+			var target = path.join(targetFolder, val);
+
+			var stat = fs.statSync(target);
+
+			if(stat.isFile()){
+
+				var fileContent = fs.readFileSync(target, 'utf8');
+				
+				fileContent = fileContent.trim();
+
+				// remove unnecessary whitespace
+				fileContent = fileContent.replace(/\s\s+/gm, ' ');
+				fileContent = fileContent.replace(/[\r\n]/gm, '');
+
+				/*
+				 * escape quotes and <>
+				 * " = \u0022
+				 * ' = \u0027
+				 * < = \u003C
+				 * > = \u003E
+				 */
+
+				fileContent = fileContent.replace(/"/gm, '\\u0022');
+				fileContent = fileContent.replace(/'/gm, '\\u0027');
+				fileContent = fileContent.replace(/</gm, '\\u003C');
+				fileContent = fileContent.replace(/>/gim, '\\u003E');
+
+				// wrap in outputJS
+
+				/*
+
+					Penguin.cache['val'] = 'fileContent';
+
+				*/
+
+				outputString += 'Penguin.cache[\''+val+'\'] = \''+fileContent+'\';';
+
+			}
+
+		});
+
+		if(amdFormat){
+
+			// wrap all in define([])
+			outputString = 'define([\'penguin\'], function(Penguin){' + outputString + '});';
+		}
+
+		fs.writeFile(output, outputString);
+	});
+}
