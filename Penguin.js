@@ -27,11 +27,39 @@
      */
     Penguin.segmentsPath = '';
 
+
     /**
      *
      * @param template {String}
      * @param config {Object}
      * @param completeFunc {Function}
+     * @param context {Object}
+     */
+    Penguin.loadSegment = function(template, config, completeFunc, context){
+
+        $.ajax(Penguin.segmentsPath + '/' +template, {
+            success:function(data){
+
+                var processedPartial = Penguin.renderTemplate(data, config);
+                Penguin.cache[template] = data;
+
+                if(typeof completeFunc == 'function'){
+
+                    var ctx = context||window;
+                    completeFunc.call(ctx, processedPartial);
+                }
+
+            }
+        });
+
+    };
+
+    /**
+     *
+     * @param template {String}
+     * @param config {Object}
+     * @param completeFunc {Function}
+     * @param context {Object}
      * @example
      &lt;div id="toolbarDiv"&gt;
 
@@ -52,7 +80,7 @@
 
      var configObject = {          title : "Title goes here !!!",
                                    items : [    {name:"Elliot", age:"29"},
-                                                {name:"Ben", age:"34"}],
+                                                {name:"Ben", age:"28"}],
                                    includeStartButton: true};
 
 
@@ -61,34 +89,31 @@
      });
 
      */
-    Penguin.getMarkup = function(template, config, completeFunc){
+    Penguin.getMarkup = function(template, config, completeFunc, context){
 
        if(!Penguin.cache[template]){
 
-           var start = Date.now();
+            // if there is a config object but no callback then use could be attempting to render a template before preload
 
-            $.ajax(Penguin.segmentsPath + '/' +template, {
-                success:function(data){
+            if(arguments.length === 2){
+                throw Error('No callback provided but template not pre-loaded. \nUse Penguin.loadSegment to preload segment, or provide a callback function');
+            }
 
-                    var processedPartial = Penguin.renderTemplate(data, config);
-                    Penguin.cache[template] = data;
-                    completeFunc(processedPartial);
-
-                    //console.log("Penguin.getMarkup "+ template  +"takes  : "+(Date.now()-start)+"ms");
-
-                }
-            });
+            Penguin.loadSegment(template, config, completeFunc, context);
 
         }else{
 
-            var start = Date.now();
-
             var processedPartial = Penguin.renderTemplate(Penguin.cache[template], config);
-            completeFunc(processedPartial);
+            if(typeof completeFunc == 'function'){
 
-            //console.log("Penguin.getMarkup "+ template  +"takes  : "+(Date.now()-start)+"ms");
+                completeFunc.call(ctx, processedPartial);
+            }else{
+                return processedPartial;
+            }
+
         }
     };
+
 
     /**
      *
