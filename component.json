@@ -1,0 +1,8 @@
+{
+    "name": "PenguinJS",
+    "version": "1.0.0",
+    "main": "Penguin.js",
+    "defpendencies":{
+        "jquery":"~1.8"
+    }
+}
