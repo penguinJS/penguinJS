@@ -6,9 +6,6 @@
      */
     var Penguin = {};
 
-
-    var $ = window.$;
-
     /**
      *
      * @type {Object}
@@ -37,21 +34,29 @@
      */
     Penguin.loadSegment = function(template, config, completeFunc, context){
 
-        $.ajax(Penguin.segmentsPath + '/' +template, {
-            success:function(data){
+        var request = new XMLHttpRequest();
+        var ctx = context||window;
 
-                var processedPartial = Penguin.renderTemplate(data, config);
-                Penguin.cache[template] = data;
-
-                if(typeof completeFunc == 'function'){
-
-                    var ctx = context||window;
-                    completeFunc.call(ctx, processedPartial);
-                }
-
+        request.onreadystatechange = function(){
+            if(request.readyState === 4 && request.status === 200){
+                complete(response.responseText);
             }
-        });
+        };
 
+        xhr.open('GET', Penguin.segmentsPath + '/' +template);
+        xhr.send(null);
+
+
+        function complete(data){
+            var processedPartial = Penguin.renderTemplate(data, config);
+            Penguin.cache[template] = data;
+
+            if(typeof completeFunc == 'function'){
+                
+                completeFunc.call(ctx, processedPartial);
+            }
+
+        }
     };
 
     /**
@@ -298,8 +303,7 @@
     };
 
     if(typeof define == 'function'){
-        define(['jquery'], function(jq){
-            $ = jq||window.$;
+        define(function(jq){
 
             return Penguin;
         });
