@@ -155,7 +155,7 @@
         templateString = templateString.replace(commentPattern, "");
 
 
-        var macroPattern = /\[~(\w+(?:#\w+)*)(:)?(\w+)?~\]/g;
+        var macroPattern = /\[~([\w\s]+(?:#[\w\s]+)*)(:)?([\w\s]+)?~\]/g;
 
         var macroList = templateString.match(macroPattern);
         iLen =  (macroList != null) ? macroList.length : 0;
@@ -166,7 +166,7 @@
         for(i=0; i<iLen; i++){
 
             var tag             = macroList[i];
-            var propertyName    = tag.replace(/\[~(.+)~\]/,"$1");
+            var propertyName    = tag.replace(/\[~(.+?)~\]/g,"$1");
 
             var isFunctional            = propertyName.indexOf(":") != -1 ;
             var functionName            = propertyName.split(":")[1];
@@ -216,7 +216,7 @@
                         var jLen = config[functionPropertyName].length;
                         for(j=0; j<jLen; j++){
 
-                            var modifiedConfig = $.extend(false, {}, config);
+                            var modifiedConfig = JSON.parse(JSON.stringify(config));
 
                             for(var k in config[functionPropertyName][j]){
                                 modifiedConfig[functionPropertyName+"#"+k] = config[functionPropertyName][j][k];
@@ -285,7 +285,7 @@
 
 
 
-        var macroPattern = /(\[\/?~\w+(?:#\w+)*)~(\w+(?:~\w+)*(?::\w+)?~\])/g;
+        var macroPattern = /(\[\/?~[\w\s]+(?:#[\w\s]+)*)~([\w\s]+(?:~[\w\s]+)*(?::\w+)?~\])/g;
 
         var macroList = repeaterText.match(macroPattern);
 
@@ -307,8 +307,13 @@
 
             return Penguin;
         });
-    }else{
+    }else if(typeof window !== 'undefined'){
+
         window['Penguin'] = Penguin;
+
+    }else if(typeof module !== 'undefined'){
+
+        module.exports = Penguin;
     }
 
 }());

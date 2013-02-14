@@ -2,5 +2,7 @@
     "name": "PenguinJS",
     "version": "1.1.0",
     "main": "Penguin.js",
-    "dependencies":{}
+    "dependencies":{
+    	"chai":"*"
+    }
 }
