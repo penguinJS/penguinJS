@@ -113,4 +113,36 @@ suite('renderTemplate', function(){
 		assert.equal(Penguin.renderTemplate(markup, config), result);
 
 	});
+
+	test('should handle nested "repeaters"', function(){
+
+		var config = {
+			memberList: [
+				{name: 'Ben', skills:[
+						{skill: 'JavaScript'},
+						{skill: 'Halo 4'},
+						{skill: 'Brewing'}
+				]},
+				{name:'Elliot', skills:[
+					{skill: 'Fifa'},
+					{skill: 'Misinterpretting information'}
+				]},
+				{name:'Tom', skills:[
+					{skill: 'payin\' the billz'},
+					{skill: 'Giving people lifts in his expensive car'},
+					{skill: 'Long and boring relationships'}
+				]},
+				{name:'Luke', skills:[
+					{skill: 'uploading the wrong file'},
+					{skill: 'pretending to be a Christian to his family'}
+				]}
+			]
+		};
+
+		var markup = '[~memberList:repeater~][~memberList~name~] - skills: [~memberList~skills:repeater~][~memberList~skills~skill~],[/~memberList~skills:repeater~]. [/~memberList:repeater~]';
+
+		var result = 'Ben - skills: JavaScript,Halo 4,Brewing,. Elliot - skills: Fifa,Misinterpretting information,. Tom - skills: payin\' the billz,Giving people lifts in his expensive car,Long and boring relationships,. Luke - skills: uploading the wrong file,pretending to be a Christian to his family,. ';
+
+		assert.equal(Penguin.renderTemplate(markup, config), result);
+	});
 });

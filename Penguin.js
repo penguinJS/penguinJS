@@ -302,6 +302,8 @@
 
     };
 
+
+
     if(typeof define == 'function'){
         define(function(jq){
 
