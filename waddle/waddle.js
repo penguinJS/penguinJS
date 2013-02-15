@@ -1,24 +1,41 @@
 // Waddle by PenguinJS
 // Compile Segments to preload
 
+var fs = require('fs');
+
+var path = require('path');
+
 var waddle = null;
+
+var domain = null;
+
+try{
+	domain = require('domain');
+}catch(er){
+
+}
+
+outputIntro();
 
 if(typeof domain !== 'undefined'){
 
 	waddle = domain.create();
-	waddle.run();
+	waddle.on('error', function(err){
+		console.error('Error', err);
+	});
+
+	waddle.run(application);
 
 }else{
 
+	process.on('uncaughtException', function(err){
+		console.error(err);
+	});
 	application();
 
 }
 
 function application(){
-
-
-	var fs = require('fs');
-	var path = require('path');
 
 	/** @type {String} path for folder containing segments */
 	var targetFolder = process.argv[process.argv.length - 1] || '.';
@@ -29,16 +46,7 @@ function application(){
 	/** @type {Boolean} flag to determine whether to wrap the output as amd */
 	var amdFormat = false;
 
-	if(waddle){
-
-		waddle.on('error', function(err){
-			console.error('Error', err);
-		});
-	}else{
-		process.on('uncaughtException', function(err){
-			console.error(err);
-		});
-	}
+	
 
 	process.argv.forEach(function(val, index, array){
 
@@ -60,9 +68,17 @@ function application(){
 				amdFormat = true;
 
 				break;
+
+			case '-help':
+			case '-h':
+				outputHelp();
+				process.exit();
+				break;
 		}
 
 	});
+
+	console.log('compiling files in '+ targetFolder + '. outputting to ' + output);
 
 
 	fs.readdir(targetFolder, function(err, files){
@@ -76,6 +92,8 @@ function application(){
 			var stat = fs.statSync(target);
 
 			if(stat.isFile()){
+
+				console.log('File '+ (index + 1) +' of '+array.length+': '+ val);
 
 				var fileContent = fs.readFileSync(target, 'utf8');
 				
@@ -108,6 +126,8 @@ function application(){
 
 				outputString += 'Penguin.cache[\''+val+'\'] = \''+fileContent+'\';';
 
+				console.log('...complete');
+
 			}
 
 		});
@@ -119,5 +139,16 @@ function application(){
 		}
 
 		fs.writeFile(output, outputString);
+		console.log('\n'+output + ' complete');
 	});
+}
+
+function outputIntro(){
+
+console.log('\nwaddle by PenguinJS...\n');
+
+}
+
+function outputHelp(){
+	
 }
