@@ -273,7 +273,6 @@
     Penguin.changeRepeaterItemNamespace = function(repeaterText){
 
 
-
         var macroPattern = /(\[\/?~[\w\s]+(?:#[\w\s]+)*)~([\w\s]+(?:~[\w\s]+)*(?::\w+)?~\])/g;
 
         var macroList = repeaterText.match(macroPattern);

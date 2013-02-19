@@ -15,6 +15,7 @@ suite('getMarkup', function(){
 	test('should error when no callback is provided and a template is not cached', function(){
 
 		assert.throws(function(){Penguin.getMarkup('test.html', {})}, Error);
+
 	});
 
 	test('should return parsed string when template is cached and no callback is provided', function(){

@@ -157,4 +157,17 @@ suite('renderTemplate', function(){
 
 		assert.equal(Penguin.renderTemplate(markup, config), 'e');
 	});
+
+
+    test('should handle nested if statements', function(){
+
+        var testObject   = {doSomething:true, doSomethingInner:true};
+        var testTemplate = '[~doSomething:if~][~doSomethingInner:if~] this gets written out if both true !!! [/~doSomethingInner:if~][/~doSomething:if~]';
+
+        var testResult = ' this gets written out if both true !!! ';
+
+        assert.equal(Penguin.renderTemplate(testTemplate, testObject), testResult);
+        assert.equal(Penguin.renderTemplate(testTemplate, {}), '');
+
+    });
 });
