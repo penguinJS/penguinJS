@@ -6,9 +6,6 @@
      */
     var Penguin = {};
 
-
-    var $ = window.$;
-
     /**
      *
      * @type {Object}
@@ -37,21 +34,20 @@
      */
     Penguin.loadSegment = function(template, config, completeFunc, context){
 
-        $.ajax(Penguin.segmentsPath + '/' +template, {
-            success:function(data){
+        var gl = typeof window !== 'undefined'?window:global;
+        var ctx = context||gl;
 
-                var processedPartial = Penguin.renderTemplate(data, config);
-                Penguin.cache[template] = data;
+        Penguin.ajax(Penguin.segmentsPath + '/' +template, function(data){
 
-                if(typeof completeFunc == 'function'){
+            var processedPartial = Penguin.renderTemplate(data, config);
+            Penguin.cache[template] = data;
 
-                    var ctx = context||window;
-                    completeFunc.call(ctx, processedPartial);
-                }
-
+            if(typeof completeFunc == 'function'){
+                
+                completeFunc.call(ctx, processedPartial);
             }
-        });
 
+        });
     };
 
     /**
@@ -150,7 +146,7 @@
         templateString = templateString.replace(commentPattern, "");
 
 
-        var macroPattern = /\[~(\w+(?:#\w+)*)(:)?(\w+)?~\]/g;
+        var macroPattern = /\[~([\w\s]+(?:#[\w\s]+)*)(:)?([\w\s]+)?~\]/g;
 
         var macroList = templateString.match(macroPattern);
         iLen =  (macroList != null) ? macroList.length : 0;
@@ -161,7 +157,7 @@
         for(i=0; i<iLen; i++){
 
             var tag             = macroList[i];
-            var propertyName    = tag.replace(/\[~(.+)~\]/,"$1");
+            var propertyName    = tag.replace(/\[~(.+?)~\]/g,"$1");
 
             var isFunctional            = propertyName.indexOf(":") != -1 ;
             var functionName            = propertyName.split(":")[1];
@@ -211,7 +207,7 @@
                         var jLen = config[functionPropertyName].length;
                         for(j=0; j<jLen; j++){
 
-                            var modifiedConfig = $.extend(false, {}, config);
+                            var modifiedConfig = JSON.parse(JSON.stringify(config));
 
                             for(var k in config[functionPropertyName][j]){
                                 modifiedConfig[functionPropertyName+"#"+k] = config[functionPropertyName][j][k];
@@ -261,10 +257,8 @@
         if(!isExternal){
             Penguin.presetTypes[name] = template;
         }else{
-            $.ajax(Config.defaultPartialsPath+template,  {
-                success:function(data){
+            Penguin.ajax(Config.defaultPartialsPath+template, function(data){
                     Penguin.presetTypes[name] = data;
-                }
             });
         }
 
@@ -280,7 +274,7 @@
 
 
 
-        var macroPattern = /(\[\/?~\w+(?:#\w+)*)~(\w+(?:~\w+)*(?::\w+)?~\])/g;
+        var macroPattern = /(\[\/?~[\w\s]+(?:#[\w\s]+)*)~([\w\s]+(?:~[\w\s]+)*(?::\w+)?~\])/g;
 
         var macroList = repeaterText.match(macroPattern);
 
@@ -297,14 +291,40 @@
 
     };
 
+
+
+    /**
+     * @param path {string}
+     * @param success {function}
+     */
+    Penguin.ajax = function(path, success){
+
+        var request = new XMLHttpRequest();
+
+        request.onreadystatechange = function(){
+            if(request.readyState === 4 && request.status === 200){
+                success(response.responseText);
+            }
+        };
+
+        xhr.open('GET', path);
+        xhr.send(null);
+    };
+
+
+
     if(typeof define == 'function'){
-        define(['jquery'], function(jq){
-            $ = jq||window.$;
+        define(function(){
 
             return Penguin;
         });
-    }else{
+    }else if(typeof window !== 'undefined'){
+
         window['Penguin'] = Penguin;
+
+    }else if(typeof module !== 'undefined'){
+
+        module.exports = Penguin;
     }
 
 }());

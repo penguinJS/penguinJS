@@ -1,8 +1,9 @@
 {
     "name": "PenguinJS",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "main": "Penguin.js",
     "dependencies":{
-        "jquery":"~1.7.2"
+    	"chai":"*",
+    	"sinon":"*"
     }
 }
