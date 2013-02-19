@@ -314,7 +314,7 @@
 
 
     if(typeof define == 'function'){
-        define(function(jq){
+        define(function(){
 
             return Penguin;
         });

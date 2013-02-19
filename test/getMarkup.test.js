@@ -1,6 +1,6 @@
 var assert = require('../components/chai/chai.js').assert;
 
-var sinon = require('../components/sinon')
+var sinon = require('../components/sinon');
 
 var Penguin = require('../Penguin.js');
 
