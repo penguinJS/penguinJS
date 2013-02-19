@@ -1,4 +1,4 @@
-var assert = require('./components/chai/chai.js').assert;
+var assert = require('../components/chai/chai.js').assert;
 
 var Penguin = require('../Penguin.js');
 
@@ -144,5 +144,17 @@ suite('renderTemplate', function(){
 		var result = 'Ben - skills: JavaScript,Halo 4,Brewing,. Elliot - skills: Fifa,Misinterpretting information,. Tom - skills: payin\' the billz,Giving people lifts in his expensive car,Long and boring relationships,. Luke - skills: uploading the wrong file,pretending to be a Christian to his family,. ';
 
 		assert.equal(Penguin.renderTemplate(markup, config), result);
+	});
+
+	test('should handle "switch" nested within "if" statements', function(){
+
+		var config = {
+			doSwitch:true,
+			switchResult: 'east'
+		};
+
+		var markup = '[~doSwitch:if~][~switchResult:switch~][~=north~]n[/~=north~][~=east~]e[/~=east~][~=south~]s[/~=south~][~=west~]w[/~=west~][/~switchResult:switch~][/~doSwitch:if~]';
+
+		assert.equal(Penguin.renderTemplate(markup, config), 'e');
 	});
 });

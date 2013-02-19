@@ -34,20 +34,11 @@
      */
     Penguin.loadSegment = function(template, config, completeFunc, context){
 
-        var request = new XMLHttpRequest();
-        var ctx = context||window;
+        var gl = typeof window !== 'undefined'?window:global;
+        var ctx = context||gl;
 
-        request.onreadystatechange = function(){
-            if(request.readyState === 4 && request.status === 200){
-                complete(response.responseText);
-            }
-        };
+        Penguin.ajax(Penguin.segmentsPath + '/' +template, function(data){
 
-        xhr.open('GET', Penguin.segmentsPath + '/' +template);
-        xhr.send(null);
-
-
-        function complete(data){
             var processedPartial = Penguin.renderTemplate(data, config);
             Penguin.cache[template] = data;
 
@@ -56,7 +47,7 @@
                 completeFunc.call(ctx, processedPartial);
             }
 
-        }
+        });
     };
 
     /**
@@ -266,10 +257,8 @@
         if(!isExternal){
             Penguin.presetTypes[name] = template;
         }else{
-            $.ajax(Config.defaultPartialsPath+template,  {
-                success:function(data){
+            Penguin.ajax(Config.defaultPartialsPath+template, function(data){
                     Penguin.presetTypes[name] = data;
-                }
             });
         }
 
@@ -300,6 +289,26 @@
 
         return repeaterText
 
+    };
+
+
+
+    /**
+     * @param path {string}
+     * @param success {function}
+     */
+    Penguin.ajax = function(path, success){
+
+        var request = new XMLHttpRequest();
+
+        request.onreadystatechange = function(){
+            if(request.readyState === 4 && request.status === 200){
+                success(response.responseText);
+            }
+        };
+
+        xhr.open('GET', path);
+        xhr.send(null);
     };
 
 
