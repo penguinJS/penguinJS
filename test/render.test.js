@@ -170,4 +170,21 @@ suite('renderTemplate', function(){
         assert.equal(Penguin.renderTemplate(testTemplate, {}), '');
 
     });
+
+    test('should allow presets to be used in templates', function(){
+
+    	Penguin.presetTypes['preset'] = '[~firstName~] [~surname~]';
+
+    	var markup = '[~presetObj@preset~]';
+    	var config = {
+    		presetObj: {
+    			'firstName': 'Mister',
+    			'surname': 'Burgundy'
+    		}
+    	};
+
+    	var result = 'Mister Burgundy';
+
+    	assert.equal(Penguin.renderTemplate(markup, config), result);
+    });
 });

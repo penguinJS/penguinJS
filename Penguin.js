@@ -102,7 +102,7 @@
             var processedPartial = Penguin.renderTemplate(Penguin.cache[template], config);
             if(typeof completeFunc == 'function'){
 
-                completeFunc.call(ctx, processedPartial);
+                completeFunc.call(context, processedPartial);
             }else{
                 return processedPartial;
             }
@@ -257,7 +257,7 @@
         if(!isExternal){
             Penguin.presetTypes[name] = template;
         }else{
-            Penguin.ajax(Config.defaultPartialsPath+template, function(data){
+            Penguin.ajax(Penguin.segmentsPath+template, function(data){
                     Penguin.presetTypes[name] = data;
             });
         }
@@ -306,8 +306,8 @@
             }
         };
 
-        xhr.open('GET', path);
-        xhr.send(null);
+        request.open('GET', path);
+        request.send(null);
     };
 
 
