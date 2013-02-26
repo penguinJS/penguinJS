@@ -12,6 +12,10 @@ suite('getMarkup', function(){
 
 	});
 
+	test('should exist', function(){
+		assert.ok(Penguin.getMarkup);
+	});
+
 	test('should error when no callback is provided and a template is not cached', function(){
 
 		assert.throws(function(){Penguin.getMarkup('test.html', {})}, Error);
