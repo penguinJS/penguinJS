@@ -9,6 +9,7 @@ var waddle = null;
 
 var domain = null;
 
+
 try{
 	domain = require('domain');
 }catch(er){
@@ -37,16 +38,13 @@ if(typeof domain !== 'undefined'){
 
 function application(){
 
+	var amdFormat = false;
+
 	/** @type {String} path for folder containing segments */
 	var targetFolder = process.argv[process.argv.length - 1] || '.';
 
 	/** @type {String} path for filename to write to */
 	var output = '';
-
-	/** @type {Boolean} flag to determine whether to wrap the output as amd */
-	var amdFormat = false;
-
-	
 
 	process.argv.forEach(function(val, index, array){
 
@@ -81,66 +79,16 @@ function application(){
 	console.log('compiling files in '+ targetFolder + '. outputting to ' + output);
 
 
-	fs.readdir(targetFolder, function(err, files){
+	var outputString = readDirectory(targetFolder);
 
-		var outputString = '';
-		
-		files.forEach(function(val, index, array){
+if(amdFormat){
 
-			var target = path.join(targetFolder, val);
+	// wrap all in define([])
+	outputString = 'define([\'penguin\'], function(Penguin){' + outputString + '});';
+}
 
-			var stat = fs.statSync(target);
-
-			if(stat.isFile()){
-
-				console.log('File '+ (index + 1) +' of '+array.length+': '+ val);
-
-				var fileContent = fs.readFileSync(target, 'utf8');
-				
-				fileContent = fileContent.trim();
-
-				// remove unnecessary whitespace
-				fileContent = fileContent.replace(/\s\s+/gm, ' ');
-				fileContent = fileContent.replace(/[\r\n]/gm, '');
-
-				/*
-				 * escape quotes and <>
-				 * " = \u0022
-				 * ' = \u0027
-				 * < = \u003C
-				 * > = \u003E
-				 */
-
-				fileContent = fileContent.replace(/"/gm, '\\u0022');
-				fileContent = fileContent.replace(/'/gm, '\\u0027');
-				fileContent = fileContent.replace(/</gm, '\\u003C');
-				fileContent = fileContent.replace(/>/gim, '\\u003E');
-
-				// wrap in outputJS
-
-				/*
-
-					Penguin.cache['val'] = 'fileContent';
-
-				*/
-
-				outputString += 'Penguin.cache[\''+val+'\'] = \''+fileContent+'\';';
-
-				console.log('...complete');
-
-			}
-
-		});
-
-		if(amdFormat){
-
-			// wrap all in define([])
-			outputString = 'define([\'penguin\'], function(Penguin){' + outputString + '});';
-		}
-
-		fs.writeFile(output, outputString);
-		console.log('\n'+output + ' complete');
-	});
+	fs.writeFileSync(output, outputString);
+	console.log('\n'+output + ' complete at ' + new Date());
 }
 
 function outputIntro(){
@@ -150,5 +98,75 @@ console.log('\nwaddle by PenguinJS...\n');
 }
 
 function outputHelp(){
-	
+
+}
+
+function processFile(val, index, array, targetFolder, pre){
+
+	var target = path.join(targetFolder, val);
+
+	var stat = fs.statSync(target);
+
+	if(stat.isFile()){
+
+		console.log('File '+ (index + 1) +' of '+array.length+': '+ pre + val);
+
+		var fileContent = fs.readFileSync(target, 'utf8');
+
+		fileContent = fileContent.trim();
+
+		// remove unnecessary whitespace
+		fileContent = fileContent.replace(/\s\s+/gm, ' ');
+		fileContent = fileContent.replace(/[\r\n]/gm, '');
+
+		/*
+		 * escape quotes and <>
+		 * " = \u0022
+		 * ' = \u0027
+		 * < = \u003C
+		 * > = \u003E
+		 */
+
+		fileContent = fileContent.replace(/"/gm, '\\u0022');
+		fileContent = fileContent.replace(/'/gm, '\\u0027');
+		fileContent = fileContent.replace(/</gm, '\\u003C');
+		fileContent = fileContent.replace(/>/gim, '\\u003E');
+
+		// wrap in outputJS
+
+		/*
+
+			Penguin.cache['val'] = 'fileContent';
+
+		*/
+
+		console.log('...complete');
+
+		return 'Penguin.cache[\''+pre+val+'\'] = \''+fileContent+'\';';
+
+
+	} else if (stat.isDirectory()) {
+
+		return readDirectory(target, pre + val);
+
+	}
+
+}
+
+function readDirectory(targetFolder, prefix){
+
+	console.log('reading dir : '+ targetFolder);
+	var pre = (prefix && prefix + '/') || '';
+	var outputString = '';
+
+	var files = fs.readdirSync(targetFolder);
+
+		files.forEach(function(val, index, array){
+			var singleOutput = processFile(val, index, array, targetFolder, pre);
+
+			outputString += singleOutput;
+
+	});
+
+	return outputString;
 }
