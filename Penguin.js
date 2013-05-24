@@ -43,7 +43,7 @@
             Penguin.cache[template] = data;
 
             if(typeof completeFunc == 'function'){
-                
+
                 completeFunc.call(ctx, processedPartial);
             }
 
@@ -201,7 +201,7 @@
 
                         var repeaterString = Penguin.changeRepeaterItemNamespace(repeaterText);
 
-                        var resultString = [];
+                        var resultString = "";
 
                         var j = 0;
                         var jLen = config[functionPropertyName].length;
@@ -213,11 +213,11 @@
                                 modifiedConfig[functionPropertyName+"#"+k] = config[functionPropertyName][j][k];
                             }
 
-                            resultString.push(Penguin.renderTemplate(repeaterString, modifiedConfig));
+                            resultString += Penguin.renderTemplate(repeaterString, modifiedConfig);
 
                         }
 
-                        templateString      = templateString.replace(wholeRepeater, resultString.join(""));
+                        templateString      = templateString.replace(wholeRepeater, resultString);
 
                         break;
 
