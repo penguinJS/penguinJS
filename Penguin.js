@@ -129,7 +129,7 @@
         var presetPatternProperties = /\[~(\w+)@(\w+)~\]/;
 
         var presetList = templateString.match(presetPattern);
-        iLen = (presetList != null) ? presetList.length : 0;
+        iLen = (presetList !== null) ? presetList.length : 0;
 
         for(i=0; i<iLen; i++){
             var presetPropertyNames = presetPatternProperties.exec(presetList[i]);
@@ -149,15 +149,15 @@
         var macroPattern = /\[~([\w\s]+(?:#[\w\s]+)*)(:)?([\w\s]+)?~\]/g;
 
         var macroList = templateString.match(macroPattern);
-        iLen =  (macroList != null) ? macroList.length : 0;
+        iLen =  (macroList !== null) ? macroList.length : 0;
 
         var i = 0 ;
-        var iLen =  (macroList != null) ? macroList.length : 0;
+        var iLen =  (macroList !== null) ? macroList.length : 0;
 
         for(i=0; i<iLen; i++){
 
-            var tag             = macroList[i];
-            var propertyName    = tag.replace(/\[~(.+?)~\]/g,"$1");
+            var tag                     = macroList[i];
+            var propertyName            = tag.replace(/\[~(.+?)~\]/g,"$1");
 
             var isFunctional            = propertyName.indexOf(":") != -1 ;
             var functionName            = propertyName.split(":")[1];
